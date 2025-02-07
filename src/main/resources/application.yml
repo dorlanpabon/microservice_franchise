@@ -1,0 +1,35 @@
+server:
+  port: 8080
+
+app:
+  title: Franchise API
+  description: Franchise API
+  version: 1.0.0
+  termsOfService: https://www.example.com/terms
+  license: Apache License Version 2.0
+  licenseUrl: https://www.apache.org/licenses/LICENSE-2.0
+
+springdoc:
+  swagger-ui:
+    enabled: true
+
+spring:
+  application:
+    name: franchise
+  devtools:
+    livereload:
+      enabled: true
+  r2dbc:
+    url: r2dbc:mysql://localhost:3306/franchise
+    username: root
+    password:
+#  api-docs:
+#    path: /api-docs
+#  swagger-ui:
+#    path: /swagger-ui
+#    operationsSorter: method
+#    disable-swagger-default-url: true
+  sql:
+    init:
+      mode: embedded
+      data-locations: classpath:sql/data.sql
