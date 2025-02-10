@@ -10,4 +10,6 @@ public interface IBranchPersistencePort {
     Mono<Boolean> existsBranchByName(String branchName);
 
     Mono<Boolean> existsBranchById(Long branchId);
+
+    Mono<Boolean> existsBranchByNameAndFranchiseId(String name, Long franchiseId);
 }

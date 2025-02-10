@@ -13,6 +13,7 @@ public class DomainConstants {
     public static final String BRANCH_NOT_FOUND = "Branch not found";
     public static final String PRODUCT_NAME_REQUIRED = "Product name is required";
     public static final String PRODUCT_INVALID_STOCK = "Stock must be non-negative";
+    public static final String PRODUCT_NAME_ALREADY_EXISTS = "Product name already exists";
 
     DomainConstants() {
         throw new IllegalStateException("Utility class");

@@ -1,6 +1,7 @@
 package com.pragma.franchise.domain.validator;
 
 import com.pragma.franchise.domain.api.IBranchPersistencePort;
+import com.pragma.franchise.domain.api.IProductPersistencePort;
 import com.pragma.franchise.domain.exception.DomainException;
 import com.pragma.franchise.domain.util.DomainConstants;
 import reactor.core.publisher.Mono;
@@ -8,9 +9,11 @@ import reactor.core.publisher.Mono;
 public class ProductValidator {
 
     private final IBranchPersistencePort branchPersistencePort;
+    private final IProductPersistencePort productPersistencePort;
 
-    public ProductValidator(IBranchPersistencePort branchPersistencePort) {
+    public ProductValidator(IBranchPersistencePort branchPersistencePort, IProductPersistencePort productPersistencePort) {
         this.branchPersistencePort = branchPersistencePort;
+        this.productPersistencePort = productPersistencePort;
     }
 
     public Mono<Void> validateBranchExists(Long branchId) {
@@ -32,4 +35,12 @@ public class ProductValidator {
                 .switchIfEmpty(Mono.error(new DomainException(DomainConstants.PRODUCT_INVALID_STOCK)))
                 .then();
     }
+
+    public Mono<Void> validateUniqueProductName(String productName, Long branchId) {
+        return productPersistencePort.existsProductByNameAndBranchId(productName, branchId)
+                .filter(exists -> !exists)
+                .switchIfEmpty(Mono.error(new DomainException(DomainConstants.PRODUCT_NAME_ALREADY_EXISTS)))
+                .then();
+    }
+
 }

@@ -18,7 +18,8 @@ public class ProductUseCase implements IProductServicePort {
         return Mono.when(
                         productValidator.validateBranchExists(product.getBranchId()),
                         productValidator.validateProductName(product.getName()),
-                        productValidator.validateStock(product.getStock())
+                        productValidator.validateStock(product.getStock()),
+                        productValidator.validateUniqueProductName(product.getName(), product.getBranchId())
                 )
                 .then(productPersistencePort.save(product));
     }

@@ -38,8 +38,8 @@ public class BranchValidator {
                 .then();
     }
 
-    public Mono<Void> validateUniqueBranchName(String branchName) {
-        return branchPersistencePort.existsBranchByName(branchName)
+    public Mono<Void> validateUniqueBranchNameAndFranchiseId(String name, Long franchiseId) {
+        return branchPersistencePort.existsBranchByNameAndFranchiseId(name, franchiseId)
                 .filter(exists -> !exists)
                 .switchIfEmpty(Mono.error(new DomainException(DomainConstants.BRANCH_NAME_ALREADY_EXISTS)))
                 .then();

@@ -7,4 +7,5 @@ public interface IProductPersistencePort {
 
     Mono<Void> save(Product product);
 
+    Mono<Boolean> existsProductByNameAndBranchId(String productName, Long branchId);
 }

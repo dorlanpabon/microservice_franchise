@@ -23,7 +23,7 @@ public class BranchUseCase implements IBranchServicePort {
                         branchValidator.validateFranchiseId(branch.getFranchiseId()),
                         branchValidator.validateFranchiseExists(branch.getFranchiseId()),
                         branchValidator.validateBranchNameLength(branch.getName()),
-                        branchValidator.validateUniqueBranchName(branch.getName())
+                        branchValidator.validateUniqueBranchNameAndFranchiseId(branch.getName(), branch.getFranchiseId())
                 )
                 .then(branchPersistencePort.save(branch));
     }

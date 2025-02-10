@@ -56,25 +56,27 @@ class BranchValidatorTest {
     @Test
     void testValidateUniqueBranchName() {
         when(branchPersistencePort.existsBranchByName(anyString())).thenReturn(Mono.just(false));
+        when(branchPersistencePort.existsBranchByNameAndFranchiseId(anyString(), anyLong())).thenReturn(Mono.just(false));
 
-        Mono<Void> result = branchValidator.validateUniqueBranchName("branchName");
+        Mono<Void> result = branchValidator.validateUniqueBranchNameAndFranchiseId("branchName",1L);
 
         StepVerifier.create(result)
                 .verifyComplete();
 
-        verify(branchPersistencePort, times(1)).existsBranchByName(anyString());
+        verify(branchPersistencePort, times(1)).existsBranchByNameAndFranchiseId(anyString(), anyLong());
     }
 
     @Test
     void testValidateUniqueBranchNameWhenBranchNameAlreadyExists() {
         when(branchPersistencePort.existsBranchByName(anyString())).thenReturn(Mono.just(true));
+        when(branchPersistencePort.existsBranchByNameAndFranchiseId(anyString(), anyLong())).thenReturn(Mono.just(true));
 
-        Mono<Void> result = branchValidator.validateUniqueBranchName("branchName");
+        Mono<Void> result = branchValidator.validateUniqueBranchNameAndFranchiseId("branchName", 1L);
 
         StepVerifier.create(result)
                 .verifyError();
 
-        verify(branchPersistencePort, times(1)).existsBranchByName(anyString());
+        verify(branchPersistencePort, times(1)).existsBranchByNameAndFranchiseId(anyString(), anyLong());
     }
 
     @Test

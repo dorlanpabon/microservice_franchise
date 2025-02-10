@@ -27,7 +27,7 @@ public class ProductUseCaseConfig {
 
     @Bean
     public ProductValidator productValidator() {
-        return new ProductValidator(branchPersistencePort);
+        return new ProductValidator(branchPersistencePort, productPersistencePort());
     }
 
     @Bean

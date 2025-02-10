@@ -7,4 +7,6 @@ import reactor.core.publisher.Mono;
 public interface IBranchRepository extends ReactiveCrudRepository<BranchEntity, Long> {
 
     Mono<Boolean> existsByName(String branchName);
+
+    Mono<Boolean> existsByNameAndFranchiseId(String name, Long franchiseId);
 }

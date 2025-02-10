@@ -37,7 +37,7 @@ class BranchUseCaseTest {
         when(branchValidator.validateFranchiseId(anyLong())).thenReturn(Mono.empty());
         when(branchValidator.validateFranchiseExists(anyLong())).thenReturn(Mono.empty());
         when(branchValidator.validateBranchNameLength(anyString())).thenReturn(Mono.empty());
-        when(branchValidator.validateUniqueBranchName(anyString())).thenReturn(Mono.empty());
+        when(branchValidator.validateUniqueBranchNameAndFranchiseId(anyString(), anyLong())).thenReturn(Mono.empty());
 
         Mono<Void> result = branchUseCase.saveBranch(branch);
 

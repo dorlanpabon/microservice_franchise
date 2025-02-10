@@ -62,4 +62,30 @@ class BranchAdapterTest {
 
         verify(branchRepository, times(1)).existsByName(anyString());
     }
+
+    @Test
+    void testExistsBranchById() {
+        when(branchRepository.existsById(anyLong())).thenReturn(Mono.just(true));
+
+        Mono<Boolean> result = branchAdapter.existsBranchById(1L);
+
+        StepVerifier.create(result)
+                .expectNext(true)
+                .verifyComplete();
+
+        verify(branchRepository, times(1)).existsById(anyLong());
+    }
+
+    @Test
+    void testExistsBranchByNameAndFranchiseId() {
+        when(branchRepository.existsByNameAndFranchiseId(anyString(), anyLong())).thenReturn(Mono.just(true));
+
+        Mono<Boolean> result = branchAdapter.existsBranchByNameAndFranchiseId("branchName", 1L);
+
+        StepVerifier.create(result)
+                .expectNext(true)
+                .verifyComplete();
+
+        verify(branchRepository, times(1)).existsByNameAndFranchiseId(anyString(), anyLong());
+    }
 }
