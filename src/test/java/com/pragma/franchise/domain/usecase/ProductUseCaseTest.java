@@ -50,4 +50,18 @@ class ProductUseCaseTest {
 
         verify(productPersistencePort, times(1)).save(any(Product.class));
     }
+
+    @Test
+    void testDeleteProduct() {
+        when(productPersistencePort.deleteByIdAndBranchId(anyLong(), anyLong())).thenReturn(Mono.empty());
+        when(productValidator.validateProductExists(anyLong(), anyLong())).thenReturn(Mono.empty());
+
+        Mono<Void> result = productUseCase.deleteProduct(1L, 1L);
+
+        StepVerifier.create(result)
+                .expectComplete()
+                .verify();
+
+        verify(productPersistencePort, times(1)).deleteByIdAndBranchId(anyLong(), anyLong());
+    }
 }

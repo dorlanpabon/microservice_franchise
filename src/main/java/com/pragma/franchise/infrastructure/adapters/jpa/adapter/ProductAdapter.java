@@ -25,4 +25,14 @@ public class ProductAdapter implements IProductPersistencePort {
     public Mono<Boolean> existsProductByNameAndBranchId(String productName, Long branchId) {
         return productRepository.existsByNameAndBranchId(productName, branchId);
     }
+
+    @Override
+    public Mono<Void> deleteByIdAndBranchId(Long productId, Long branchId) {
+        return productRepository.deleteByIdAndBranchId(productId, branchId).then();
+    }
+
+    @Override
+    public Mono<Boolean> existsByIdAndBranchId(Long productId, Long branchId) {
+        return productRepository.existsByIdAndBranchId(productId, branchId);
+    }
 }

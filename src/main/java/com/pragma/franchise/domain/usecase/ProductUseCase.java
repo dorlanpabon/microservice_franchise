@@ -23,4 +23,10 @@ public class ProductUseCase implements IProductServicePort {
                 )
                 .then(productPersistencePort.save(product));
     }
+
+    @Override
+    public Mono<Void> deleteProduct(Long productId, Long branchId) {
+        return productValidator.validateProductExists(productId, branchId)
+                .then(productPersistencePort.deleteByIdAndBranchId(productId, branchId));
+    }
 }

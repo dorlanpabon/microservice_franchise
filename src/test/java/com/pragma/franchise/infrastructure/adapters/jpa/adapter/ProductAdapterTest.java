@@ -65,4 +65,26 @@ class ProductAdapterTest {
                 .expectNext(true)
                 .verifyComplete();
     }
+
+    @Test
+    void testDeleteByIdAndBranchId() {
+        when(productRepository.deleteByIdAndBranchId(1L, 2L)).thenReturn(Mono.empty());
+
+        Mono<Void> result = productAdapter.deleteByIdAndBranchId(1L, 2L);
+
+        StepVerifier.create(result)
+                .expectNextCount(0)
+                .verifyComplete();
+    }
+
+    @Test
+    void testExistsByIdAndBranchId() {
+        when(productRepository.existsByIdAndBranchId(1L, 2L)).thenReturn(Mono.just(true));
+
+        Mono<Boolean> result = productAdapter.existsByIdAndBranchId(1L, 2L);
+
+        StepVerifier.create(result)
+                .expectNext(true)
+                .verifyComplete();
+    }
 }

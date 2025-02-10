@@ -43,4 +43,17 @@ class ProductControllerTest {
 
         verify(productHandler, times(1)).addProduct(any(ProductRequestDto.class));
     }
+
+    @Test
+    void testDeleteProduct() {
+        when(productHandler.deleteProduct(anyLong(), anyLong())).thenReturn(Mono.empty());
+
+        Mono<ResponseEntity<Void>> result = productController.deleteProduct(1L, 1L);
+
+        StepVerifier.create(result)
+                .expectNext(ResponseEntity.status(204).build())
+                .verifyComplete();
+
+        verify(productHandler, times(1)).deleteProduct(anyLong(), anyLong());
+    }
 }

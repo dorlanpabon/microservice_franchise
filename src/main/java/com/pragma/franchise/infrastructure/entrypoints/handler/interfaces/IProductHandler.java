@@ -5,4 +5,6 @@ import reactor.core.publisher.Mono;
 
 public interface IProductHandler {
     Mono<Void> addProduct(ProductRequestDto productRequestDto);
+
+    Mono<Void> deleteProduct(Long productId, Long branchId);
 }

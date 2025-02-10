@@ -92,4 +92,30 @@ class ProductValidatorTest {
 
         verify(productPersistencePort, times(1)).existsProductByNameAndBranchId(anyString(), anyLong());
     }
+
+    @Test
+    void testValidateProductExists() {
+        when(productPersistencePort.existsByIdAndBranchId(anyLong(), anyLong())).thenReturn(Mono.just(true));
+
+        Mono<Void> result = productValidator.validateProductExists(1L, 1L);
+
+        StepVerifier.create(result)
+                .expectComplete()
+                .verify();
+
+        verify(productPersistencePort, times(1)).existsByIdAndBranchId(anyLong(), anyLong());
+    }
+
+    @Test
+    void testValidateProductNotExists() {
+        when(productPersistencePort.existsByIdAndBranchId(anyLong(), anyLong())).thenReturn(Mono.just(false));
+
+        Mono<Void> result = productValidator.validateProductExists(1L, 1L);
+
+        StepVerifier.create(result)
+                .expectError()
+                .verify();
+
+        verify(productPersistencePort, times(1)).existsByIdAndBranchId(anyLong(), anyLong());
+    }
 }

@@ -43,4 +43,10 @@ public class ProductValidator {
                 .then();
     }
 
+    public Mono<Void> validateProductExists(Long productId, Long branchId) {
+        return productPersistencePort.existsByIdAndBranchId(productId, branchId)
+                .filter(Boolean::booleanValue)
+                .switchIfEmpty(Mono.error(new DomainException(DomainConstants.PRODUCT_NOT_FOUND)))
+                .then();
+    }
 }

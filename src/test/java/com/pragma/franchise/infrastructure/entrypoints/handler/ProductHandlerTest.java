@@ -52,5 +52,15 @@ class ProductHandlerTest {
 
         verify(productRequestMapper, times(1)).toDomain(any(ProductRequestDto.class));
     }
+
+    @Test
+    void testDeleteProduct() {
+        when(productServicePort.deleteProduct(anyLong(), anyLong())).thenReturn(Mono.empty());
+
+        Mono<Void> result = productHandler.deleteProduct(1L, 1L);
+
+        StepVerifier.create(result)
+                .verifyComplete();
+    }
 }
 

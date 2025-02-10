@@ -22,4 +22,9 @@ public class ProductHandler implements IProductHandler {
                 .flatMap(productServicePort::saveProduct)
                 .then();
     }
+
+    @Override
+    public Mono<Void> deleteProduct(Long productId, Long branchId) {
+        return productServicePort.deleteProduct(productId, branchId);
+    }
 }

@@ -7,4 +7,5 @@ public interface IProductServicePort {
 
     Mono<Void> saveProduct(Product product);
 
+    Mono<Void> deleteProduct(Long productId, Long branchId);
 }

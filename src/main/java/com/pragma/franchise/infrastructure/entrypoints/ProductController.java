@@ -30,4 +30,17 @@ public class ProductController {
         return productHandler.addProduct(productRequestDto)
                 .then(Mono.just(ResponseEntity.status(HttpStatus.CREATED).build()));
     }
+
+
+    @Operation(summary = "Delete a product from a branch", responses = {
+            @ApiResponse(responseCode = "204", description = "Product deleted"),
+            @ApiResponse(responseCode = "404", description = "Product not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @DeleteMapping("/{productId}/branch/{branchId}")
+    public Mono<ResponseEntity<Void>> deleteProduct(@PathVariable Long productId, @PathVariable Long branchId) {
+        return productHandler.deleteProduct(productId, branchId)
+                .then(Mono.just(ResponseEntity.status(HttpStatus.NO_CONTENT).build()));
+    }
+
 }
