@@ -10,6 +10,9 @@ public class DomainConstants {
     public static final String FRANCHISE_NAME_TOO_LONG = "Franchise name is too long";
     public static final int MAX_NAME_BRANCH_LENGTH = 50;
     public static final int MAX_NAME_FRANCHISE_LENGTH = 50;
+    public static final String BRANCH_NOT_FOUND = "Branch not found";
+    public static final String PRODUCT_NAME_REQUIRED = "Product name is required";
+    public static final String PRODUCT_INVALID_STOCK = "Stock must be non-negative";
 
     DomainConstants() {
         throw new IllegalStateException("Utility class");
