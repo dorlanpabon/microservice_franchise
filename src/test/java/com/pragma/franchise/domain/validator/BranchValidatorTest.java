@@ -122,4 +122,12 @@ class BranchValidatorTest {
         StepVerifier.create(result)
                 .verifyComplete();
     }
+
+    @Test
+    void testValidateBranchNameWhenNameIsTooLong() {
+        Mono<Void> result = branchValidator.validateBranchName("name".repeat(100));
+
+        StepVerifier.create(result)
+                .verifyError();
+    }
 }
