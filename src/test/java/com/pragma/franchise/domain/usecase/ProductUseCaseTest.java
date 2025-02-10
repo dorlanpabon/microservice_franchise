@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -80,5 +81,19 @@ class ProductUseCaseTest {
 
         verify(productPersistencePort, times(1)).findByIdAndBranchId(anyLong(), anyLong());
         verify(productPersistencePort, times(1)).updateStock(anyLong(), anyLong(), anyInt());
+    }
+
+    @Test
+    void testGetMaxStockProductByBranchForFranchise() {
+        when(productPersistencePort.findMaxStockProductByBranchForFranchise(anyLong())).thenReturn(Flux.just(product));
+
+        Flux<Product> result = productUseCase.getMaxStockProductByBranchForFranchise(1L);
+
+        StepVerifier.create(result)
+                .expectNext(product)
+                .expectComplete()
+                .verify();
+
+        verify(productPersistencePort, times(1)).findMaxStockProductByBranchForFranchise(anyLong());
     }
 }

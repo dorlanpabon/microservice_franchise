@@ -2,6 +2,7 @@ package com.pragma.franchise.infrastructure.entrypoints;
 
 import com.pragma.franchise.infrastructure.entrypoints.dto.request.ProductRequestDto;
 import com.pragma.franchise.infrastructure.entrypoints.dto.request.ProductStockUpdateDto;
+import com.pragma.franchise.infrastructure.entrypoints.dto.response.ProductStockResponseDto;
 import com.pragma.franchise.infrastructure.entrypoints.handler.interfaces.IProductHandler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,7 +11,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -73,5 +76,17 @@ class ProductControllerTest {
                 .verifyComplete();
 
         verify(productHandler, times(1)).updateStock(anyLong(), anyLong(), any());
+    }
+
+    @Test
+    void testGetMaxStockProductByBranchForFranchise() {
+        when(productHandler.getMaxStockProductByBranchForFranchise(anyLong())).thenReturn(null);
+
+        ResponseEntity<Flux<ProductStockResponseDto>> result = productController.getMaxStockProductByBranchForFranchise(1L);
+
+        Assertions.assertEquals(HttpStatus.OK, result.getStatusCode());
+        Assertions.assertNull(result.getBody());
+
+        verify(productHandler, times(1)).getMaxStockProductByBranchForFranchise(anyLong());
     }
 }

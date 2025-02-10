@@ -1,6 +1,7 @@
 package com.pragma.franchise.domain.spi;
 
 import com.pragma.franchise.domain.model.Product;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface IProductServicePort {
@@ -10,4 +11,6 @@ public interface IProductServicePort {
     Mono<Void> deleteProduct(Long productId, Long branchId);
 
     Mono<Void> updateStock(Long productId, Long branchId, Integer stockChange);
+
+    Flux<Product> getMaxStockProductByBranchForFranchise(Long franchiseId);
 }

@@ -2,8 +2,10 @@ package com.pragma.franchise.infrastructure.entrypoints;
 
 import com.pragma.franchise.infrastructure.entrypoints.dto.request.ProductRequestDto;
 import com.pragma.franchise.infrastructure.entrypoints.dto.request.ProductStockUpdateDto;
+import com.pragma.franchise.infrastructure.entrypoints.dto.response.ProductStockResponseDto;
 import com.pragma.franchise.infrastructure.entrypoints.handler.interfaces.IProductHandler;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -11,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -56,6 +59,19 @@ public class ProductController {
                                                   @Valid @RequestBody ProductStockUpdateDto stockUpdateDto) {
         return productHandler.updateStock(productId, branchId, stockUpdateDto)
                 .then(Mono.just(ResponseEntity.status(HttpStatus.NO_CONTENT).build()));
+    }
+
+
+    @Operation(summary = "Get product with max stock per branch for a franchise", responses = {
+            @ApiResponse(responseCode = "200", description = "Products retrieved", useReturnTypeSchema = false),
+            @ApiResponse(responseCode = "404", description = "Franchise not found", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content),
+    })
+    @GetMapping("/franchise/{franchiseId}/max-stock")
+    public ResponseEntity<Flux<ProductStockResponseDto>> getMaxStockProductByBranchForFranchise(
+            @PathVariable Long franchiseId) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(productHandler.getMaxStockProductByBranchForFranchise(franchiseId));
     }
 
 }

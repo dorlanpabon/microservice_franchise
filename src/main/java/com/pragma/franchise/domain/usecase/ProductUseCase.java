@@ -5,6 +5,7 @@ import com.pragma.franchise.domain.model.Product;
 import com.pragma.franchise.domain.spi.IProductServicePort;
 import com.pragma.franchise.domain.validator.ProductValidator;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
@@ -39,5 +40,10 @@ public class ProductUseCase implements IProductServicePort {
                     int newStock = product.getStock() + stockChange;
                     return productPersistencePort.updateStock(productId, branchId, newStock);
                 });
+    }
+
+    @Override
+    public Flux<Product> getMaxStockProductByBranchForFranchise(Long franchiseId) {
+        return productPersistencePort.findMaxStockProductByBranchForFranchise(franchiseId);
     }
 }

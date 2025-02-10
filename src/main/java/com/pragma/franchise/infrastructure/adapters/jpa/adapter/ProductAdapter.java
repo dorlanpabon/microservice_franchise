@@ -2,12 +2,16 @@ package com.pragma.franchise.infrastructure.adapters.jpa.adapter;
 
 import com.pragma.franchise.domain.api.IProductPersistencePort;
 import com.pragma.franchise.domain.model.Product;
+import com.pragma.franchise.infrastructure.adapters.jpa.entity.ProductEntity;
 import com.pragma.franchise.infrastructure.adapters.jpa.mapper.IProductEntityMapper;
 import com.pragma.franchise.infrastructure.adapters.jpa.repository.IProductRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
+@Slf4j
 public class ProductAdapter implements IProductPersistencePort {
 
     private final IProductRepository productRepository;
@@ -51,5 +55,11 @@ public class ProductAdapter implements IProductPersistencePort {
                 })
                 .flatMap(productRepository::save)
                 .then();
+    }
+
+    @Override
+    public Flux<Product> findMaxStockProductByBranchForFranchise(Long franchiseId) {
+        return productRepository.findMaxStockProductByBranchForFranchise(franchiseId)
+                .map(productEntityMapper::toDomain);
     }
 }

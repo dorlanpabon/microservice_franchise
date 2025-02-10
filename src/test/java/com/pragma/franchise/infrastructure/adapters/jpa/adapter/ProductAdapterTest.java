@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -112,5 +113,19 @@ class ProductAdapterTest {
                 .verifyComplete();
 
         Assertions.assertEquals(100, productEntity.getStock());
+    }
+
+    @Test
+    void testFindMaxStockProductByBranchForFranchise() {
+        when(productRepository.findMaxStockProductByBranchForFranchise(1L)).thenReturn(Flux.just(productEntity));
+        when(productEntityMapper.toDomain(productEntity)).thenReturn(product);
+
+        Flux<Product> result = productAdapter.findMaxStockProductByBranchForFranchise(1L);
+
+        StepVerifier.create(result)
+                .expectNext(product)
+                .verifyComplete();
+
+        verify(productRepository, times(1)).findMaxStockProductByBranchForFranchise(1L);
     }
 }

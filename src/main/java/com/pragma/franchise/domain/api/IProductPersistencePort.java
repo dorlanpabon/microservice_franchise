@@ -1,6 +1,7 @@
 package com.pragma.franchise.domain.api;
 
 import com.pragma.franchise.domain.model.Product;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface IProductPersistencePort {
@@ -16,4 +17,6 @@ public interface IProductPersistencePort {
     Mono<Product> findByIdAndBranchId(Long productId, Long branchId);
 
     Mono<Void> updateStock(Long productId, Long branchId, Integer newStock);
+
+    Flux<Product> findMaxStockProductByBranchForFranchise(Long franchiseId);
 }

@@ -139,4 +139,18 @@ class ProductValidatorTest {
 
         verify(productPersistencePort, times(1)).findByIdAndBranchId(anyLong(), anyLong());
     }
+
+    //                .filter(product -> product.getStock() + stockChange >= 0)
+    @Test
+    void testValidateStockUpdateOutOfStock() {
+        when(productPersistencePort.findByIdAndBranchId(anyLong(), anyLong())).thenReturn(Mono.just(product));
+
+        Mono<Void> result = productValidator.validateStockUpdate(1L, 1L, -2);
+
+        StepVerifier.create(result)
+                .expectError()
+                .verify();
+
+        verify(productPersistencePort, times(1)).findByIdAndBranchId(anyLong(), anyLong());
+    }
 }
