@@ -1,22 +1,43 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: >
-  franchise-sam with RDS MySQL
-
-Globals:
-  Function:
-    Timeout: 3
+Description: AWS infrastructure with ECS Fargate, ALB, and RDS MySQL
 
 Parameters:
   VpcId:
     Type: AWS::EC2::VPC::Id
-    Description: "VPC ID where the RDS instance will be created"
+    Description: VPC ID for the infrastructure
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Subnet IDs for ECS and ALB
   DBPasswordSecret:
     Type: String
-    Description: "Password for the RDS MySQL instance"
     NoEcho: true
+    Description: Secret ARN for the RDS database password
 
 Resources:
+  ECRRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: franchise-api
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "description": "Eliminar imágenes sin uso después de 30 días",
+                "selection": {
+                  "tagStatus": "untagged",
+                  "countType": "sinceImagePushed",
+                  "countUnit": "days",
+                  "countNumber": 30
+                },
+                "action": {
+                  "type": "expire"
+                }
+              }
+            ]
+          }
 
   RDSSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -39,7 +60,7 @@ Resources:
       AllocatedStorage: 20
       PubliclyAccessible: true
       VPCSecurityGroups:
-        - !GetAtt RDSSecurityGroup.GroupId
+        - !Ref RDSSecurityGroup
       MasterUsername: admin
       MasterUserPassword: !Ref DBPasswordSecret
       DBName: franchise
@@ -47,10 +68,165 @@ Resources:
       StorageType: gp2
       BackupRetentionPeriod: 7
 
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: FranchiseCluster
+
+  TaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ECRAccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecr:GetAuthorizationToken
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+
+  ECSTaskSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security Group for ECS Task
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          SourceSecurityGroupId: !Ref ALBSecurityGroup  # Solo permite tráfico desde el ALB
+
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security Group for ALB
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0  # Permite tráfico desde cualquier lugar
+
+  ECSTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: FranchiseTask
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: '512'
+      Memory: '1024'
+      NetworkMode: awsvpc
+      ExecutionRoleArn: !Ref TaskExecutionRole
+      RuntimePlatform:
+        OperatingSystemFamily: LINUX
+        CpuArchitecture: x86_64
+      ContainerDefinitions:
+        - Name: franchise-container
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/franchise-api:latest"
+          PortMappings:
+            - ContainerPort: 8080
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub "/ecs/${AWS::StackName}"
+              awslogs-region: !Ref "AWS::Region"
+              awslogs-stream-prefix: "ecs"
+              awslogs-create-group: "true"
+              mode: "non-blocking"
+          Essential: true
+          Environment:
+            - Name: SPRING_R2DBC_URL
+              Value: !Sub "r2dbc:mysql://${RDSInstance.Endpoint.Address}:3306/franchise"
+            - Name: SPRING_R2DBC_USERNAME
+              Value: admin
+            - Name: SPRING_R2DBC_PASSWORD
+              Value: !Ref DBPasswordSecret
+
+  ECSService:
+    Type: AWS::ECS::Service
+    DependsOn:
+      - ALBListener
+    Properties:
+      Cluster: !Ref ECSCluster
+      TaskDefinition: !Ref ECSTaskDefinition
+      LaunchType: FARGATE
+      DesiredCount: 2
+      SchedulingStrategy: REPLICA
+#      DeploymentConfiguration:
+#        MaximumPercent: 200
+#        MinimumHealthyPercent: 100
+#        DeploymentCircuitBreaker:
+#          Enable: true
+#          Rollback: true
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          Subnets: !Ref SubnetIds
+          AssignPublicIp: ENABLED
+          SecurityGroups:
+            - !Ref ECSTaskSecurityGroup
+      LoadBalancers:
+        - TargetGroupArn: !Ref TargetGroup
+          ContainerName: franchise-container
+          ContainerPort: 8080
+
+
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: FranchiseALB
+      Subnets: !Ref SubnetIds
+      SecurityGroups:
+        - !Ref RDSSecurityGroup
+        - !Ref ALBSecurityGroup
+      Scheme: internet-facing
+      Type: application
+
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VpcId
+      Port: 8080
+      Protocol: HTTP
+      TargetType: ip
+      HealthCheckPath: "/health"
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 3
+      UnhealthyThresholdCount: 2
+      Matcher:
+        HttpCode: "200-399"
+
+  ALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup
+
 Outputs:
+  LoadBalancerDNS:
+    Description: The ALB DNS Name
+    Value: !GetAtt LoadBalancer.DNSName
   RDSInstanceEndpoint:
-    Description: "RDS MySQL Instance Endpoint"
+    Description: RDS MySQL Instance Endpoint
     Value: !GetAtt RDSInstance.Endpoint.Address
-  RDSDatabaseName:
-    Description: "Database Name"
-    Value: !Ref RDSInstance
+  RepositoryUri:
+    Description: ECR Repository URI
+    Value: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/franchise-api:latest"
