@@ -1,12 +1,10 @@
 package com.pragma.franchise.domain.model;
 
-import java.util.List;
-
-public class Franchise {
+public class Branch {
 
     private Long id;
     private String name;
-    private List<Branch> subsidiaries;
+    private Long franchiseId;
 
     public Long getId() {
         return id;
@@ -24,11 +22,11 @@ public class Franchise {
         this.name = name;
     }
 
-    public List<Branch> getSubsidiaries() {
-        return subsidiaries;
+    public Long getFranchiseId() {
+        return franchiseId;
     }
 
-    public void setSubsidiaries(List<Branch> subsidiaries) {
-        this.subsidiaries = subsidiaries;
+    public void setFranchiseId(Long franchiseId) {
+        this.franchiseId = franchiseId;
     }
 }

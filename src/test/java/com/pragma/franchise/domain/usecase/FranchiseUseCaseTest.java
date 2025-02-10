@@ -2,6 +2,7 @@ package com.pragma.franchise.domain.usecase;
 
 import com.pragma.franchise.domain.api.IFranchisePersistencePort;
 import com.pragma.franchise.domain.model.Franchise;
+import com.pragma.franchise.domain.validator.FranchiseValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -16,6 +17,8 @@ import static org.mockito.Mockito.*;
 class FranchiseUseCaseTest {
     @Mock
     IFranchisePersistencePort franchisePersistencePort;
+    @Mock
+    FranchiseValidator franchiseValidator;
     @InjectMocks
     FranchiseUseCase franchiseUseCase;
     @Spy
@@ -30,6 +33,8 @@ class FranchiseUseCaseTest {
     @Test
     void testSave() {
         when(franchisePersistencePort.save(any(Franchise.class))).thenReturn(Mono.empty());
+        when(franchiseValidator.validateFranchiseName(anyString())).thenReturn(Mono.empty());
+        when(franchiseValidator.validateUniqueFranchiseName(anyString())).thenReturn(Mono.empty());
 
         Mono<Void> result = franchiseUseCase.save(franchise);
 

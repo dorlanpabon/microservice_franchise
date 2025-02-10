@@ -1,5 +1,11 @@
-CREATE TABLE IF NOT EXISTS `franchise` (
+CREATE TABLE IF NOT EXISTS `franchises` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(50) NOT NULL,
   PRIMARY KEY (`id`)
+);
+
+CREATE TABLE IF NOT EXISTS `branch` (
+    `id` INT NOT NULL AUTO_INCREMENT ,
+    `name` VARCHAR(50) NOT NULL , `franchise_id` INT NOT NULL ,
+    PRIMARY KEY (`id`)
 );

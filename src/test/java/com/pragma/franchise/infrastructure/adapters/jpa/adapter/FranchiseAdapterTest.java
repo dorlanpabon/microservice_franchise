@@ -45,4 +45,28 @@ class FranchiseAdapterTest {
 
         verify(franchiseEntityMapper, times(1)).toEntity(any(Franchise.class));
     }
+
+    @Test
+    void testExistsFranchise() {
+        when(franchiseRepository.existsById(anyLong())).thenReturn(Mono.just(true));
+        Mono<Boolean> result = franchiseAdapter.existsFranchise(1L);
+
+        StepVerifier.create(result)
+                .expectNext(true)
+                .verifyComplete();
+
+        verify(franchiseRepository, times(1)).existsById(anyLong());
+    }
+
+    @Test
+    void testExistsByName() {
+        when(franchiseRepository.existsByName(anyString())).thenReturn(Mono.just(true));
+        Mono<Boolean> result = franchiseAdapter.existsByName("name");
+
+        StepVerifier.create(result)
+                .expectNext(true)
+                .verifyComplete();
+
+        verify(franchiseRepository, times(1)).existsByName(anyString());
+    }
 }

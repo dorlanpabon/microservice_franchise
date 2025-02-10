@@ -20,4 +20,14 @@ public class FranchiseAdapter implements IFranchisePersistencePort {
                 .flatMap(franchiseRepository::save)
                 .then();
     }
+
+    @Override
+    public Mono<Boolean> existsFranchise(Long franchiseId) {
+        return franchiseRepository.existsById(franchiseId);
+    }
+
+    @Override
+    public Mono<Boolean> existsByName(String name) {
+        return franchiseRepository.existsByName(name);
+    }
 }
