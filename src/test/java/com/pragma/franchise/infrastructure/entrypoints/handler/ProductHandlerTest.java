@@ -3,6 +3,7 @@ package com.pragma.franchise.infrastructure.entrypoints.handler;
 import com.pragma.franchise.domain.model.Product;
 import com.pragma.franchise.domain.spi.IProductServicePort;
 import com.pragma.franchise.infrastructure.entrypoints.dto.request.ProductRequestDto;
+import com.pragma.franchise.infrastructure.entrypoints.dto.request.ProductStockUpdateDto;
 import com.pragma.franchise.infrastructure.entrypoints.mapper.IProductRequestMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +28,8 @@ class ProductHandlerTest {
     ProductRequestDto productRequestDto;
     @Spy
     Product product;
+    @Spy
+    ProductStockUpdateDto productStockUpdateDto;
 
     @BeforeEach
     void setUp() {
@@ -38,6 +41,8 @@ class ProductHandlerTest {
         product.setName("product");
         product.setStock(10);
         product.setBranchId(1L);
+
+        productStockUpdateDto.setStockChange(10);
     }
 
     @Test
@@ -58,6 +63,16 @@ class ProductHandlerTest {
         when(productServicePort.deleteProduct(anyLong(), anyLong())).thenReturn(Mono.empty());
 
         Mono<Void> result = productHandler.deleteProduct(1L, 1L);
+
+        StepVerifier.create(result)
+                .verifyComplete();
+    }
+
+    @Test
+    void testUpdateStock() {
+        when(productServicePort.updateStock(anyLong(), anyLong(), anyInt())).thenReturn(Mono.empty());
+
+        Mono<Void> result = productHandler.updateStock(1L, 1L, productStockUpdateDto);
 
         StepVerifier.create(result)
                 .verifyComplete();

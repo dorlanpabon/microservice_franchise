@@ -29,4 +29,15 @@ public class ProductUseCase implements IProductServicePort {
         return productValidator.validateProductExists(productId, branchId)
                 .then(productPersistencePort.deleteByIdAndBranchId(productId, branchId));
     }
+
+    @Override
+    public Mono<Void> updateStock(Long productId, Long branchId, Integer stockChange) {
+        return productValidator.validateProductExists(productId, branchId)
+                .then(productValidator.validateStockUpdate(productId, branchId, stockChange))
+                .then(productPersistencePort.findByIdAndBranchId(productId, branchId))
+                .flatMap(product -> {
+                    int newStock = product.getStock() + stockChange;
+                    return productPersistencePort.updateStock(productId, branchId, newStock);
+                });
+    }
 }

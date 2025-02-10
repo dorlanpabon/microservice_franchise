@@ -12,4 +12,5 @@ public interface IProductRepository extends ReactiveCrudRepository<ProductEntity
 
     Mono<Boolean> existsByIdAndBranchId(Long id, Long branchId);
 
+    Mono<ProductEntity> findByIdAndBranchId(Long productId, Long branchId);
 }

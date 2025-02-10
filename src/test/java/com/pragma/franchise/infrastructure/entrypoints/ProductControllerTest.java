@@ -1,6 +1,7 @@
 package com.pragma.franchise.infrastructure.entrypoints;
 
 import com.pragma.franchise.infrastructure.entrypoints.dto.request.ProductRequestDto;
+import com.pragma.franchise.infrastructure.entrypoints.dto.request.ProductStockUpdateDto;
 import com.pragma.franchise.infrastructure.entrypoints.handler.interfaces.IProductHandler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +23,8 @@ class ProductControllerTest {
     ProductController productController;
     @Spy
     ProductRequestDto productRequestDto;
+    @Spy
+    ProductStockUpdateDto productStockUpdateDto;
 
     @BeforeEach
     void setUp() {
@@ -29,6 +32,8 @@ class ProductControllerTest {
         productRequestDto.setName("product");
         productRequestDto.setStock(10);
         productRequestDto.setBranchId(1L);
+
+        productStockUpdateDto.setStockChange(10);
     }
 
     @Test
@@ -55,5 +60,18 @@ class ProductControllerTest {
                 .verifyComplete();
 
         verify(productHandler, times(1)).deleteProduct(anyLong(), anyLong());
+    }
+
+    @Test
+    void testUpdateStock() {
+        when(productHandler.updateStock(anyLong(), anyLong(), any())).thenReturn(Mono.empty());
+
+        Mono<ResponseEntity<Void>> result = productController.updateStock(1L, 1L, productStockUpdateDto);
+
+        StepVerifier.create(result)
+                .expectNext(ResponseEntity.status(204).build())
+                .verifyComplete();
+
+        verify(productHandler, times(1)).updateStock(anyLong(), anyLong(), any());
     }
 }

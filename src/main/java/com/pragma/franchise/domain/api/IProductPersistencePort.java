@@ -12,4 +12,8 @@ public interface IProductPersistencePort {
     Mono<Void> deleteByIdAndBranchId(Long productId, Long branchId);
 
     Mono<Boolean> existsByIdAndBranchId(Long productId, Long branchId);
+
+    Mono<Product> findByIdAndBranchId(Long productId, Long branchId);
+
+    Mono<Void> updateStock(Long productId, Long branchId, Integer newStock);
 }

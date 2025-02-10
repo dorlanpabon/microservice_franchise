@@ -1,6 +1,7 @@
 package com.pragma.franchise.infrastructure.entrypoints;
 
 import com.pragma.franchise.infrastructure.entrypoints.dto.request.ProductRequestDto;
+import com.pragma.franchise.infrastructure.entrypoints.dto.request.ProductStockUpdateDto;
 import com.pragma.franchise.infrastructure.entrypoints.handler.interfaces.IProductHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -40,6 +41,20 @@ public class ProductController {
     @DeleteMapping("/{productId}/branch/{branchId}")
     public Mono<ResponseEntity<Void>> deleteProduct(@PathVariable Long productId, @PathVariable Long branchId) {
         return productHandler.deleteProduct(productId, branchId)
+                .then(Mono.just(ResponseEntity.status(HttpStatus.NO_CONTENT).build()));
+    }
+
+
+    @Operation(summary = "Update product stock", responses = {
+            @ApiResponse(responseCode = "204", description = "Stock updated"),
+            @ApiResponse(responseCode = "404", description = "Product not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid stock change"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PatchMapping("/{productId}/branch/{branchId}/stock")
+    public Mono<ResponseEntity<Void>> updateStock(@PathVariable Long productId, @PathVariable Long branchId,
+                                                  @Valid @RequestBody ProductStockUpdateDto stockUpdateDto) {
+        return productHandler.updateStock(productId, branchId, stockUpdateDto)
                 .then(Mono.just(ResponseEntity.status(HttpStatus.NO_CONTENT).build()));
     }
 

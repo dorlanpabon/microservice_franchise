@@ -49,4 +49,11 @@ public class ProductValidator {
                 .switchIfEmpty(Mono.error(new DomainException(DomainConstants.PRODUCT_NOT_FOUND)))
                 .then();
     }
+
+    public Mono<Void> validateStockUpdate(Long productId, Long branchId, Integer stockChange) {
+        return productPersistencePort.findByIdAndBranchId(productId, branchId)
+                .filter(product -> product.getStock() + stockChange >= 0)
+                .switchIfEmpty(Mono.error(new DomainException(DomainConstants.PRODUCT_OUT_OF_STOCK)))
+                .then();
+    }
 }

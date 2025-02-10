@@ -35,4 +35,21 @@ public class ProductAdapter implements IProductPersistencePort {
     public Mono<Boolean> existsByIdAndBranchId(Long productId, Long branchId) {
         return productRepository.existsByIdAndBranchId(productId, branchId);
     }
+
+    @Override
+    public Mono<Product> findByIdAndBranchId(Long productId, Long branchId) {
+        return productRepository.findByIdAndBranchId(productId, branchId)
+                .map(productEntityMapper::toDomain);
+    }
+
+    @Override
+    public Mono<Void> updateStock(Long productId, Long branchId, Integer newStock) {
+        return productRepository.findByIdAndBranchId(productId, branchId)
+                .map(product -> {
+                    product.setStock(newStock);
+                    return product;
+                })
+                .flatMap(productRepository::save)
+                .then();
+    }
 }

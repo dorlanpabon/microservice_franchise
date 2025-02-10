@@ -2,6 +2,7 @@ package com.pragma.franchise.domain.validator;
 
 import com.pragma.franchise.domain.api.IBranchPersistencePort;
 import com.pragma.franchise.domain.api.IProductPersistencePort;
+import com.pragma.franchise.domain.model.Product;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,10 +22,17 @@ class ProductValidatorTest {
     IProductPersistencePort productPersistencePort;
     @InjectMocks
     ProductValidator productValidator;
+    @Spy
+    Product product;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        product.setBranchId(1L);
+        product.setName("name");
+        product.setStock(1);
+        product.setBranchId(1L);
     }
 
     @Test
@@ -117,5 +125,18 @@ class ProductValidatorTest {
                 .verify();
 
         verify(productPersistencePort, times(1)).existsByIdAndBranchId(anyLong(), anyLong());
+    }
+
+    @Test
+    void testValidateStockUpdate() {
+        when(productPersistencePort.findByIdAndBranchId(anyLong(), anyLong())).thenReturn(Mono.just(product));
+
+        Mono<Void> result = productValidator.validateStockUpdate(1L, 1L, 1);
+
+        StepVerifier.create(result)
+                .expectComplete()
+                .verify();
+
+        verify(productPersistencePort, times(1)).findByIdAndBranchId(anyLong(), anyLong());
     }
 }

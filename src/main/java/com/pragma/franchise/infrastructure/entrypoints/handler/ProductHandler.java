@@ -2,6 +2,7 @@ package com.pragma.franchise.infrastructure.entrypoints.handler;
 
 import com.pragma.franchise.domain.spi.IProductServicePort;
 import com.pragma.franchise.infrastructure.entrypoints.dto.request.ProductRequestDto;
+import com.pragma.franchise.infrastructure.entrypoints.dto.request.ProductStockUpdateDto;
 import com.pragma.franchise.infrastructure.entrypoints.handler.interfaces.IProductHandler;
 import com.pragma.franchise.infrastructure.entrypoints.mapper.IProductRequestMapper;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +27,10 @@ public class ProductHandler implements IProductHandler {
     @Override
     public Mono<Void> deleteProduct(Long productId, Long branchId) {
         return productServicePort.deleteProduct(productId, branchId);
+    }
+
+    @Override
+    public Mono<Void> updateStock(Long productId, Long branchId, ProductStockUpdateDto stockUpdateDto) {
+        return productServicePort.updateStock(productId, branchId, stockUpdateDto.getStockChange());
     }
 }

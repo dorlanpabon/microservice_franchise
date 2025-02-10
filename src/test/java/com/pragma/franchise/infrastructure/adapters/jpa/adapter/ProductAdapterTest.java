@@ -87,4 +87,30 @@ class ProductAdapterTest {
                 .expectNext(true)
                 .verifyComplete();
     }
+
+    @Test
+    void testFindByIdAndBranchId() {
+        when(productRepository.findByIdAndBranchId(1L, 2L)).thenReturn(Mono.just(productEntity));
+        when(productEntityMapper.toDomain(productEntity)).thenReturn(product);
+
+        Mono<Product> result = productAdapter.findByIdAndBranchId(1L, 2L);
+
+        StepVerifier.create(result)
+                .expectNext(product)
+                .verifyComplete();
+    }
+
+    @Test
+    void testUpdateStock() {
+        when(productRepository.findByIdAndBranchId(1L, 2L)).thenReturn(Mono.just(productEntity));
+        when(productRepository.save(productEntity)).thenReturn(Mono.just(productEntity));
+
+        Mono<Void> result = productAdapter.updateStock(1L, 2L, 100);
+
+        StepVerifier.create(result)
+                .expectNextCount(0)
+                .verifyComplete();
+
+        Assertions.assertEquals(100, productEntity.getStock());
+    }
 }

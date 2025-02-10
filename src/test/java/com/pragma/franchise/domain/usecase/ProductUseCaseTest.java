@@ -64,4 +64,21 @@ class ProductUseCaseTest {
 
         verify(productPersistencePort, times(1)).deleteByIdAndBranchId(anyLong(), anyLong());
     }
+
+    @Test
+    void testUpdateStock() {
+        when(productPersistencePort.findByIdAndBranchId(anyLong(), anyLong())).thenReturn(Mono.just(product));
+        when(productPersistencePort.updateStock(anyLong(), anyLong(), anyInt())).thenReturn(Mono.empty());
+        when(productValidator.validateProductExists(anyLong(), anyLong())).thenReturn(Mono.empty());
+        when(productValidator.validateStockUpdate(anyLong(), anyLong(), anyInt())).thenReturn(Mono.empty());
+
+        Mono<Void> result = productUseCase.updateStock(1L, 1L, 10);
+
+        StepVerifier.create(result)
+                .expectComplete()
+                .verify();
+
+        verify(productPersistencePort, times(1)).findByIdAndBranchId(anyLong(), anyLong());
+        verify(productPersistencePort, times(1)).updateStock(anyLong(), anyLong(), anyInt());
+    }
 }
