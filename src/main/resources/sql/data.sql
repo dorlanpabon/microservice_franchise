@@ -1,3 +1,7 @@
+CREATE SCHEMA IF NOT EXISTS `franchise`;
+
+USE `franchise`;
+
 CREATE TABLE IF NOT EXISTS `franchise` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(50) NOT NULL,
