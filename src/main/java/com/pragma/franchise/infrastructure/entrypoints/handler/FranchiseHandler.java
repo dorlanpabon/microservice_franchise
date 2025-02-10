@@ -26,4 +26,10 @@ public class FranchiseHandler implements IFranchiseHandler {
                 .flatMap(franchiseServicePort::save)
                 .then();
     }
+
+    @Override
+    public Mono<Void> updateFranchiseName(Long franchiseId, String newName) {
+        return franchiseServicePort.updateFranchiseName(franchiseId, newName);
+    }
+
 }

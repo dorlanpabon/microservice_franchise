@@ -1,8 +1,10 @@
 package com.pragma.franchise.domain.usecase;
 
 import com.pragma.franchise.domain.api.IFranchisePersistencePort;
+import com.pragma.franchise.domain.exception.DomainException;
 import com.pragma.franchise.domain.model.Franchise;
 import com.pragma.franchise.domain.spi.IFranchiseServicePort;
+import com.pragma.franchise.domain.util.DomainConstants;
 import com.pragma.franchise.domain.validator.FranchiseValidator;
 import reactor.core.publisher.Mono;
 
@@ -23,6 +25,16 @@ public class FranchiseUseCase implements IFranchiseServicePort {
                         franchiseValidator.validateUniqueFranchiseName(franchise.getName())
                 )
                 .then(franchisePersistencePort.save(franchise));
+    }
+
+    @Override
+    public Mono<Void> updateFranchiseName(Long franchiseId, String newName) {
+        return franchisePersistencePort.findById(franchiseId)
+                .switchIfEmpty(Mono.error(new DomainException(DomainConstants.FRANCHISE_NOT_FOUND)))
+                .flatMap(franchise -> franchiseValidator.validateFranchiseName(newName)
+                        .then(franchiseValidator.validateUniqueFranchiseName(newName))
+                        .then(Mono.fromRunnable(() -> franchise.setName(newName)))
+                        .then(franchisePersistencePort.save(franchise)));
     }
 
 }

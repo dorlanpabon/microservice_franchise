@@ -43,5 +43,21 @@ class FranchiseUseCaseTest {
 
         verify(franchisePersistencePort, times(1)).save(any(Franchise.class));
     }
+
+    @Test
+    void testUpdateFranchiseName() {
+        when(franchisePersistencePort.findById(anyLong())).thenReturn(Mono.just(franchise));
+        when(franchisePersistencePort.save(any(Franchise.class))).thenReturn(Mono.empty());
+        when(franchiseValidator.validateFranchiseName(anyString())).thenReturn(Mono.empty());
+        when(franchiseValidator.validateUniqueFranchiseName(anyString())).thenReturn(Mono.empty());
+
+        Mono<Void> result = franchiseUseCase.updateFranchiseName(1L, "newName");
+
+        StepVerifier.create(result)
+                .verifyComplete();
+
+        verify(franchisePersistencePort, times(1)).findById(anyLong());
+        verify(franchisePersistencePort, times(1)).save(any(Franchise.class));
+    }
 }
 

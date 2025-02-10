@@ -69,4 +69,18 @@ class FranchiseAdapterTest {
 
         verify(franchiseRepository, times(1)).existsByName(anyString());
     }
+
+    @Test
+    void testFindById() {
+        when(franchiseRepository.findById(anyLong())).thenReturn(Mono.just(franchiseEntity));
+        when(franchiseEntityMapper.toDomain(any(FranchiseEntity.class))).thenReturn(franchise);
+        Mono<Franchise> result = franchiseAdapter.findById(1L);
+
+        StepVerifier.create(result)
+                .expectNext(franchise)
+                .verifyComplete();
+
+        verify(franchiseRepository, times(1)).findById(anyLong());
+        verify(franchiseEntityMapper, times(1)).toDomain(any(FranchiseEntity.class));
+    }
 }

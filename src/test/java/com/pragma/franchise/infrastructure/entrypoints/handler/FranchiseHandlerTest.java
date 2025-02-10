@@ -48,4 +48,15 @@ class FranchiseHandlerTest {
 
         verify(franchiseRequestMapper, times(1)).toDomain(any(FranchiseRequestDto.class));
     }
+
+    @Test
+    void testUpdateFranchiseName() {
+        when(franchiseServicePort.updateFranchiseName(anyLong(), anyString())).thenReturn(Mono.empty());
+        Mono<Void> result = franchiseHandler.updateFranchiseName(1L, "newName");
+
+        StepVerifier.create(result)
+                .verifyComplete();
+
+        verify(franchiseServicePort, times(1)).updateFranchiseName(anyLong(), anyString());
+    }
 }

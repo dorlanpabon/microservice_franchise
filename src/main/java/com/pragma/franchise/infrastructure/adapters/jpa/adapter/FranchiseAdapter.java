@@ -5,6 +5,7 @@ import com.pragma.franchise.domain.model.Franchise;
 import com.pragma.franchise.infrastructure.adapters.jpa.mapper.IFranchiseEntityMapper;
 import com.pragma.franchise.infrastructure.adapters.jpa.repository.IFranchiseRepository;
 import lombok.AllArgsConstructor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @AllArgsConstructor
@@ -29,5 +30,11 @@ public class FranchiseAdapter implements IFranchisePersistencePort {
     @Override
     public Mono<Boolean> existsByName(String name) {
         return franchiseRepository.existsByName(name);
+    }
+
+    @Override
+    public Mono<Franchise> findById(Long franchiseId) {
+        return franchiseRepository.findById(franchiseId)
+                .map(franchiseEntityMapper::toDomain);
     }
 }

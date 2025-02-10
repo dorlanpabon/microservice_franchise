@@ -40,4 +40,17 @@ class FranchiseControllerTest {
 
         verify(franchiseHandler, times(1)).createFranchise(any(FranchiseRequestDto.class));
     }
+
+    @Test
+    void testUpdateFranchiseName() {
+        when(franchiseHandler.updateFranchiseName(anyLong(), anyString())).thenReturn(Mono.empty());
+
+        Mono<ResponseEntity<Void>> result = franchiseController.updateFranchiseName(1L, "newName");
+
+        StepVerifier.create(result)
+                .expectNext(ResponseEntity.ok().build())
+                .verifyComplete();
+
+        verify(franchiseHandler, times(1)).updateFranchiseName(anyLong(), anyString());
+    }
 }

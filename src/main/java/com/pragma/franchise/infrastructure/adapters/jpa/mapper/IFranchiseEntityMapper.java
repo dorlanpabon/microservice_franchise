@@ -12,4 +12,5 @@ public interface IFranchiseEntityMapper {
 
     FranchiseEntity toEntity(Franchise franchise);
 
+    Franchise toDomain(FranchiseEntity franchiseEntity);
 }

@@ -7,4 +7,6 @@ public interface IFranchiseHandler {
 
     Mono<Void> createFranchise(FranchiseRequestDto franchiseRequestDto);
 
+    Mono<Void> updateFranchiseName(Long franchiseId, String newName);
+
 }
