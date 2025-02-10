@@ -77,5 +77,15 @@ class ProductHandlerTest {
         StepVerifier.create(result)
                 .verifyComplete();
     }
+
+    @Test
+    void testUpdateProductName() {
+        when(productServicePort.updateProductName(anyLong(), anyString())).thenReturn(Mono.empty());
+
+        Mono<Void> result = productHandler.updateProductName(1L, "newName");
+
+        StepVerifier.create(result)
+                .verifyComplete();
+    }
 }
 

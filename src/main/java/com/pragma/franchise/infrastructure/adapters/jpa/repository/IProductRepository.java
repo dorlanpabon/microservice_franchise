@@ -1,5 +1,6 @@
 package com.pragma.franchise.infrastructure.adapters.jpa.repository;
 
+import com.pragma.franchise.infrastructure.adapters.jpa.dto.ProductWithBranchNameDto;
 import com.pragma.franchise.infrastructure.adapters.jpa.entity.ProductEntity;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
@@ -23,7 +24,6 @@ public interface IProductRepository extends ReactiveCrudRepository<ProductEntity
         WHERE b.franchise_id = :franchiseId
         AND p.stock = (SELECT MAX(p2.stock) FROM product p2 WHERE p2.branch_id = p.branch_id)
     """)
-    Flux<ProductEntity> findMaxStockProductByBranchForFranchise(Long franchiseId);
-
+    Flux<ProductWithBranchNameDto> findMaxStockProductByBranchForFranchise(Long franchiseId);
 
 }

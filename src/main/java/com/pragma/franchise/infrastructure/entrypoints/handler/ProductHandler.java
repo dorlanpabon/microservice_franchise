@@ -43,4 +43,10 @@ public class ProductHandler implements IProductHandler {
         return productServicePort.getMaxStockProductByBranchForFranchise(franchiseId)
                 .map(productResponseMapper::toResponse);
     }
+
+    @Override
+    public Mono<Void> updateProductName(Long productId, String newName) {
+        return productServicePort.updateProductName(productId, newName);
+    }
+
 }

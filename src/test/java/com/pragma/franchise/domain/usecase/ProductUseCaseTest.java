@@ -96,4 +96,21 @@ class ProductUseCaseTest {
 
         verify(productPersistencePort, times(1)).findMaxStockProductByBranchForFranchise(anyLong());
     }
+
+    @Test
+    void testUpdateProductName() {
+        when(productPersistencePort.findById(anyLong())).thenReturn(Mono.just(product));
+        when(productPersistencePort.save(any(Product.class))).thenReturn(Mono.empty());
+        when(productValidator.validateProductName(anyString())).thenReturn(Mono.empty());
+        when(productValidator.validateUniqueProductName(anyString(), anyLong())).thenReturn(Mono.empty());
+
+        Mono<Void> result = productUseCase.updateProductName(1L, "newName");
+
+        StepVerifier.create(result)
+                .expectComplete()
+                .verify();
+
+        verify(productPersistencePort, times(1)).findById(anyLong());
+        verify(productPersistencePort, times(1)).save(any(Product.class));
+    }
 }

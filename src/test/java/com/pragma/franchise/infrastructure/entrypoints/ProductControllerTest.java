@@ -89,4 +89,17 @@ class ProductControllerTest {
 
         verify(productHandler, times(1)).getMaxStockProductByBranchForFranchise(anyLong());
     }
+
+    @Test
+    void testUpdateProductName() {
+        when(productHandler.updateProductName(anyLong(), anyString())).thenReturn(Mono.empty());
+
+        Mono<ResponseEntity<Void>> result = productController.updateProductName(1L, "newName");
+
+        StepVerifier.create(result)
+                .expectNext(ResponseEntity.status(200).build())
+                .verifyComplete();
+
+        verify(productHandler, times(1)).updateProductName(anyLong(), anyString());
+    }
 }

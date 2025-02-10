@@ -1,6 +1,7 @@
 package com.pragma.franchise.infrastructure.adapters.jpa.mapper;
 
 import com.pragma.franchise.domain.model.Product;
+import com.pragma.franchise.infrastructure.adapters.jpa.dto.ProductWithBranchNameDto;
 import com.pragma.franchise.infrastructure.adapters.jpa.entity.ProductEntity;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
@@ -43,5 +44,23 @@ class IProductEntityMapperTest {
         assertThat(product.getName()).isEqualTo(productEntity.getName());
         assertThat(product.getStock()).isEqualTo(productEntity.getStock());
         assertThat(product.getBranchId()).isEqualTo(productEntity.getBranchId());
+    }
+
+    @Test
+    void toDomain_ShouldMapProductWithBranchNameDtoToProduct() {
+        ProductWithBranchNameDto productWithBranchNameDto = new ProductWithBranchNameDto();
+        productWithBranchNameDto.setId(1L);
+        productWithBranchNameDto.setName("Phone");
+        productWithBranchNameDto.setStock(100);
+        productWithBranchNameDto.setBranchId(3L);
+        productWithBranchNameDto.setBranchName("Branch");
+
+        Product product = productEntityMapper.toDomain(productWithBranchNameDto);
+
+        assertThat(product).isNotNull();
+        assertThat(product.getId()).isEqualTo(productWithBranchNameDto.getId());
+        assertThat(product.getName()).isEqualTo(productWithBranchNameDto.getName());
+        assertThat(product.getStock()).isEqualTo(productWithBranchNameDto.getStock());
+        assertThat(product.getBranchId()).isEqualTo(productWithBranchNameDto.getBranchId());
     }
 }

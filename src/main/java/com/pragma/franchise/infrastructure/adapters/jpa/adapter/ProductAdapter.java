@@ -62,4 +62,11 @@ public class ProductAdapter implements IProductPersistencePort {
         return productRepository.findMaxStockProductByBranchForFranchise(franchiseId)
                 .map(productEntityMapper::toDomain);
     }
+
+    @Override
+    public Mono<Product> findById(Long productId) {
+        return productRepository.findById(productId)
+                .map(productEntityMapper::toDomain);
+    }
+
 }

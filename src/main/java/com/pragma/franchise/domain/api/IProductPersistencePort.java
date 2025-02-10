@@ -19,4 +19,6 @@ public interface IProductPersistencePort {
     Mono<Void> updateStock(Long productId, Long branchId, Integer newStock);
 
     Flux<Product> findMaxStockProductByBranchForFranchise(Long franchiseId);
+
+    Mono<Product> findById(Long productId);
 }

@@ -15,4 +15,5 @@ public interface IProductHandler {
 
     Flux<ProductStockResponseDto> getMaxStockProductByBranchForFranchise(Long franchiseId);
 
+    Mono<Void> updateProductName(Long productId, String newName);
 }

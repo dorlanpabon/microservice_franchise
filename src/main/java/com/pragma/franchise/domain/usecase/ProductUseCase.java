@@ -1,8 +1,10 @@
 package com.pragma.franchise.domain.usecase;
 
 import com.pragma.franchise.domain.api.IProductPersistencePort;
+import com.pragma.franchise.domain.exception.DomainException;
 import com.pragma.franchise.domain.model.Product;
 import com.pragma.franchise.domain.spi.IProductServicePort;
+import com.pragma.franchise.domain.util.DomainConstants;
 import com.pragma.franchise.domain.validator.ProductValidator;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -46,4 +48,15 @@ public class ProductUseCase implements IProductServicePort {
     public Flux<Product> getMaxStockProductByBranchForFranchise(Long franchiseId) {
         return productPersistencePort.findMaxStockProductByBranchForFranchise(franchiseId);
     }
+
+    @Override
+    public Mono<Void> updateProductName(Long productId, String newName) {
+        return productPersistencePort.findById(productId)
+                .switchIfEmpty(Mono.error(new DomainException(DomainConstants.PRODUCT_NOT_FOUND)))
+                .flatMap(product -> productValidator.validateProductName(newName)
+                        .then(productValidator.validateUniqueProductName(newName, product.getBranchId()))
+                        .then(Mono.fromRunnable(() -> product.setName(newName)))
+                        .then(productPersistencePort.save(product)));
+    }
+
 }

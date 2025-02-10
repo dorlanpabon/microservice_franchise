@@ -1,6 +1,7 @@
 package com.pragma.franchise.infrastructure.adapters.jpa.adapter;
 
 import com.pragma.franchise.domain.model.Product;
+import com.pragma.franchise.infrastructure.adapters.jpa.dto.ProductWithBranchNameDto;
 import com.pragma.franchise.infrastructure.adapters.jpa.entity.ProductEntity;
 import com.pragma.franchise.infrastructure.adapters.jpa.mapper.IProductEntityMapper;
 import com.pragma.franchise.infrastructure.adapters.jpa.repository.IProductRepository;
@@ -28,6 +29,8 @@ class ProductAdapterTest {
     Product product;
     @Spy
     ProductEntity productEntity;
+    @Spy
+    ProductWithBranchNameDto productWithBranchNameDto;
 
 
     @BeforeEach
@@ -40,6 +43,11 @@ class ProductAdapterTest {
         productEntity.setName("name");
         productEntity.setStock(50);
         productEntity.setBranchId(2L);
+
+        productWithBranchNameDto.setName("name");
+        productWithBranchNameDto.setStock(50);
+        productWithBranchNameDto.setBranchId(2L);
+        productWithBranchNameDto.setBranchName("branchName");
     }
 
     @Test
@@ -117,8 +125,8 @@ class ProductAdapterTest {
 
     @Test
     void testFindMaxStockProductByBranchForFranchise() {
-        when(productRepository.findMaxStockProductByBranchForFranchise(1L)).thenReturn(Flux.just(productEntity));
-        when(productEntityMapper.toDomain(productEntity)).thenReturn(product);
+        when(productRepository.findMaxStockProductByBranchForFranchise(1L)).thenReturn(Flux.just(productWithBranchNameDto));
+        when(productEntityMapper.toDomain(productWithBranchNameDto)).thenReturn(product);
 
         Flux<Product> result = productAdapter.findMaxStockProductByBranchForFranchise(1L);
 
@@ -127,5 +135,17 @@ class ProductAdapterTest {
                 .verifyComplete();
 
         verify(productRepository, times(1)).findMaxStockProductByBranchForFranchise(1L);
+    }
+
+    @Test
+    void testFindById() {
+        when(productRepository.findById(1L)).thenReturn(Mono.just(productEntity));
+        when(productEntityMapper.toDomain(productEntity)).thenReturn(product);
+
+        Mono<Product> result = productAdapter.findById(1L);
+
+        StepVerifier.create(result)
+                .expectNext(product)
+                .verifyComplete();
     }
 }

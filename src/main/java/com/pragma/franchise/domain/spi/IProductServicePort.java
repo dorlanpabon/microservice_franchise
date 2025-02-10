@@ -13,4 +13,6 @@ public interface IProductServicePort {
     Mono<Void> updateStock(Long productId, Long branchId, Integer stockChange);
 
     Flux<Product> getMaxStockProductByBranchForFranchise(Long franchiseId);
+
+    Mono<Void> updateProductName(Long productId, String newName);
 }

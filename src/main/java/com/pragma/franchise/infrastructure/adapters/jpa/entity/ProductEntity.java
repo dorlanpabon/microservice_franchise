@@ -27,6 +27,7 @@ public class ProductEntity {
     @Column("stock")
     private Integer stock;
 
+    @Transient
     @Column("branch_name")
     private String branchName;
 }

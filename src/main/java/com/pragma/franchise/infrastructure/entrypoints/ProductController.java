@@ -74,4 +74,17 @@ public class ProductController {
                 .body(productHandler.getMaxStockProductByBranchForFranchise(franchiseId));
     }
 
+    @Operation(summary = "Update product name", responses = {
+            @ApiResponse(responseCode = "200", description = "Product name updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "404", description = "Product not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PatchMapping("/{id}")
+    public Mono<ResponseEntity<Void>> updateProductName(@PathVariable Long id, @RequestParam String newName) {
+        return productHandler.updateProductName(id, newName)
+                .then(Mono.just(ResponseEntity.ok().build()));
+    }
+
+
 }
