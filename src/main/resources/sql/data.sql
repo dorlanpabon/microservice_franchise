@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS `branch` (
 
 CREATE TABLE IF NOT EXISTS `product` (
     `id` INT NOT NULL AUTO_INCREMENT ,
-    `name` INT NOT NULL ,
+    `name` VARCHAR(50) NOT NULL ,
     `stock` INT NOT NULL ,
     `branch_id` INT NOT NULL ,
     PRIMARY KEY (`id`)
