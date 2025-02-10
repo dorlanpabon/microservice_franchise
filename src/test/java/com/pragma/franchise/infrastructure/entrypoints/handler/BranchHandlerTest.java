@@ -48,4 +48,15 @@ class BranchHandlerTest {
                 .create(result)
                 .verifyComplete();
     }
+
+    @Test
+    void testUpdateBranchName() {
+        when(branchServicePort.updateBranchName(anyLong(), anyString())).thenReturn(Mono.empty());
+
+        Mono<Void> result = branchHandler.updateBranchName(1L, "newName");
+
+        StepVerifier
+                .create(result)
+                .verifyComplete();
+    }
 }

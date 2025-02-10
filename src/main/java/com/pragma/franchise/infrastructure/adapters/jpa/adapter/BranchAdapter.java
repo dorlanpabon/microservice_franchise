@@ -36,4 +36,10 @@ public class BranchAdapter implements IBranchPersistencePort {
         return branchRepository.existsByNameAndFranchiseId(name, franchiseId);
     }
 
+    @Override
+    public Mono<Branch> findById(Long branchId) {
+        return branchRepository.findById(branchId)
+                .map(branchEntityMapper::toDomain);
+    }
+
 }

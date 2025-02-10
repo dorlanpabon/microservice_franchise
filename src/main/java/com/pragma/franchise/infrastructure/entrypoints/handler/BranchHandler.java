@@ -24,4 +24,10 @@ public class BranchHandler implements IBranchHandler {
                 .flatMap(branchServicePort::saveBranch)
                 .then();
     }
+
+    @Override
+    public Mono<Void> updateBranchName(Long branchId, String newName) {
+        return branchServicePort.updateBranchName(branchId, newName);
+    }
+
 }

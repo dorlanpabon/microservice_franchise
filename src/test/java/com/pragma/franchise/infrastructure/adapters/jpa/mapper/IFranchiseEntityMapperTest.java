@@ -23,4 +23,17 @@ class IFranchiseEntityMapperTest {
         assertEquals(franchise.getId(), franchiseEntity.getId());
         assertEquals(franchise.getName(), franchiseEntity.getName());
     }
+
+    @Test
+    void testToDomain() {
+        FranchiseEntity franchiseEntity = new FranchiseEntity();
+        franchiseEntity.setId(1L);
+        franchiseEntity.setName("Tech Franchise");
+
+        Franchise franchise = mapper.toDomain(franchiseEntity);
+
+        assertNotNull(franchise);
+        assertEquals(franchiseEntity.getId(), franchise.getId());
+        assertEquals(franchiseEntity.getName(), franchise.getName());
+    }
 }

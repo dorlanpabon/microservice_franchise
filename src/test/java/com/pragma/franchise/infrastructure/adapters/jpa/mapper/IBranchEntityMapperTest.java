@@ -25,4 +25,19 @@ class IBranchEntityMapperTest {
         assertEquals(branch.getName(), branchEntity.getName());
         assertEquals(branch.getFranchiseId(), branchEntity.getFranchiseId());
     }
+
+    @Test
+    void testToDomain() {
+        BranchEntity branchEntity = new BranchEntity();
+        branchEntity.setId(1L);
+        branchEntity.setName("Sucursal Norte");
+        branchEntity.setFranchiseId(100L);
+
+        Branch branch = mapper.toDomain(branchEntity);
+
+        assertNotNull(branch);
+        assertEquals(branchEntity.getId(), branch.getId());
+        assertEquals(branchEntity.getName(), branch.getName());
+        assertEquals(branchEntity.getFranchiseId(), branch.getFranchiseId());
+    }
 }

@@ -114,4 +114,12 @@ class BranchValidatorTest {
         StepVerifier.create(result)
                 .verifyError();
     }
+
+    @Test
+    void testValidateBranchName() {
+        Mono<Void> result = branchValidator.validateBranchName("name");
+
+        StepVerifier.create(result)
+                .verifyComplete();
+    }
 }

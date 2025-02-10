@@ -42,4 +42,18 @@ class BranchControllerTest {
 
         verify(branchHandler, times(1)).createBranch(any(BranchRequestDto.class));
     }
+
+    @Test
+    void testUpdateBranchName() {
+        when(branchHandler.updateBranchName(anyLong(), anyString())).thenReturn(Mono.empty());
+
+        Mono<ResponseEntity<Void>> result = branchController.updateBranchName(1L, "newName");
+
+        StepVerifier
+                .create(result)
+                .expectNext(ResponseEntity.ok().build())
+                .verifyComplete();
+
+        verify(branchHandler, times(1)).updateBranchName(anyLong(), anyString());
+    }
 }

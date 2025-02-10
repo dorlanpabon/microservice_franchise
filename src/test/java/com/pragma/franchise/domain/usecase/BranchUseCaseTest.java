@@ -46,4 +46,20 @@ class BranchUseCaseTest {
 
         verify(branchPersistencePort, times(1)).save(any(Branch.class));
     }
+
+    @Test
+    void testUpdateBranchName() {
+        when(branchPersistencePort.findById(anyLong())).thenReturn(Mono.just(branch));
+        when(branchValidator.validateBranchName(anyString())).thenReturn(Mono.empty());
+        when(branchValidator.validateUniqueBranchNameAndFranchiseId(anyString(), anyLong())).thenReturn(Mono.empty());
+        when(branchPersistencePort.save(any(Branch.class))).thenReturn(Mono.empty());
+
+        Mono<Void> result = branchUseCase.updateBranchName(1L, "newName");
+
+        StepVerifier.create(result)
+                .verifyComplete();
+
+        verify(branchPersistencePort, times(1)).findById(anyLong());
+        verify(branchPersistencePort, times(1)).save(any(Branch.class));
+    }
 }

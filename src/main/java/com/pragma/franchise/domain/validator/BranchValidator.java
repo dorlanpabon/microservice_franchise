@@ -44,4 +44,11 @@ public class BranchValidator {
                 .switchIfEmpty(Mono.error(new DomainException(DomainConstants.BRANCH_NAME_ALREADY_EXISTS)))
                 .then();
     }
+
+    public Mono<Void> validateBranchName(String newName) {
+        return Mono.justOrEmpty(newName)
+                .filter(n -> n.length() <= MAX_NAME_LENGTH)
+                .switchIfEmpty(Mono.error(new DomainException(DomainConstants.BRANCH_NAME_TOO_LONG)))
+                .then();
+    }
 }

@@ -30,4 +30,17 @@ public class BranchController {
         return branchHandler.createBranch(branchRequestDto)
                 .then(Mono.just(ResponseEntity.status(HttpStatus.CREATED).build()));
     }
+
+    @Operation(summary = "Update branch name", responses = {
+            @ApiResponse(responseCode = "200", description = "Branch name updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "404", description = "Branch not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PatchMapping("/{id}")
+    public Mono<ResponseEntity<Void>> updateBranchName(@PathVariable Long id, @RequestParam String newName) {
+        return branchHandler.updateBranchName(id, newName)
+                .then(Mono.just(ResponseEntity.ok().build()));
+    }
+
 }

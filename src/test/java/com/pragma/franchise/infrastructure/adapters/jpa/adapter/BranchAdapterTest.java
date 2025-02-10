@@ -88,4 +88,19 @@ class BranchAdapterTest {
 
         verify(branchRepository, times(1)).existsByNameAndFranchiseId(anyString(), anyLong());
     }
+
+    @Test
+    void testFindById() {
+        when(branchRepository.findById(anyLong())).thenReturn(Mono.just(branchEntity));
+        when(branchEntityMapper.toDomain(any(BranchEntity.class))).thenReturn(branch);
+
+        Mono<Branch> result = branchAdapter.findById(1L);
+
+        StepVerifier.create(result)
+                .expectNext(branch)
+                .verifyComplete();
+
+        verify(branchRepository, times(1)).findById(anyLong());
+        verify(branchEntityMapper, times(1)).toDomain(any(BranchEntity.class));
+    }
 }

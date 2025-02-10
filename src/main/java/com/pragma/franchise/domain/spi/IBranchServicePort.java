@@ -7,5 +7,7 @@ public interface IBranchServicePort {
 
     Mono<Void> saveBranch(Branch branch);
 
+    Mono<Void> updateBranchName(Long branchId, String newName);
+
 }
 
