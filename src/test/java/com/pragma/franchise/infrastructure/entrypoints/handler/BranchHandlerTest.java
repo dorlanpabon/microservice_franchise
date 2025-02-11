@@ -9,54 +9,75 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.reactive.function.server.MockServerRequest;
+import org.springframework.web.reactive.function.server.ServerRequest;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.net.URI;
 
 import static org.mockito.Mockito.*;
 
 class BranchHandlerTest {
+
     @Mock
-    IBranchServicePort branchServicePort;
+    private IBranchServicePort branchServicePort;
+
     @Mock
-    IBranchRequestMapper branchRequestMapper;
+    private IBranchRequestMapper branchRequestMapper;
+
     @InjectMocks
-    BranchHandler branchHandler;
-    @Spy
-    BranchRequestDto branchRequestDto;
-    @Spy
-    Branch branch;
+    private BranchHandler branchHandler;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        branchRequestDto.setName("name");
-        branchRequestDto.setFranchiseId(1L);
-
-        branch.setName("name");
-        branch.setFranchiseId(1L);
     }
 
     @Test
-    void testCreateBranch() {
-        when(branchRequestMapper.toDomain(any(BranchRequestDto.class))).thenReturn(branch);
-        when(branchServicePort.saveBranch(any(Branch.class))).thenReturn(Mono.empty());
+    void testCreateBranch_ShouldReturnCreated() {
+        BranchRequestDto branchRequestDto = new BranchRequestDto();
+        branchRequestDto.setName("New Branch");
+        Branch branch = new Branch();
+        branch.setName("New Branch");
 
-        Mono<Void> result = branchHandler.createBranch(branchRequestDto);
+        ServerRequest request = MockServerRequest.builder()
+                .method(HttpMethod.POST)
+                .uri(URI.create("/branch"))
+                .body(Mono.just(branchRequestDto));
 
-        StepVerifier
-                .create(result)
+        when(branchRequestMapper.toDomain(branchRequestDto)).thenReturn(branch);
+        when(branchServicePort.saveBranch(branch)).thenReturn(Mono.empty());
+
+        StepVerifier.create(branchHandler.createBranch(request))
+                .expectNextMatches(response -> response.statusCode().equals(HttpStatus.CREATED))
                 .verifyComplete();
+
+        verify(branchRequestMapper, times(1)).toDomain(branchRequestDto);
+        verify(branchServicePort, times(1)).saveBranch(branch);
     }
 
+
     @Test
-    void testUpdateBranchName() {
-        when(branchServicePort.updateBranchName(anyLong(), anyString())).thenReturn(Mono.empty());
+    void testUpdateBranchName_ShouldReturnOk() {
+        Long branchId = 1L;
+        String newName = "Updated Branch";
 
-        Mono<Void> result = branchHandler.updateBranchName(1L, "newName");
+        ServerRequest request = MockServerRequest.builder()
+                .method(HttpMethod.POST)
+                .uri(URI.create("/branch/update"))
+                .queryParam("branchId", branchId.toString())
+                .queryParam("newName", newName)
+                .build();
 
-        StepVerifier
-                .create(result)
+        when(branchServicePort.updateBranchName(branchId, newName)).thenReturn(Mono.empty());
+
+        StepVerifier.create(branchHandler.updateBranchName(request))
+                .expectNextMatches(response -> response.statusCode().equals(HttpStatus.OK))
                 .verifyComplete();
+
+        verify(branchServicePort, times(1)).updateBranchName(branchId, newName);
     }
 }

@@ -1,5 +1,6 @@
 server:
   port: 8080
+  address: 0.0.0.0
 
 app:
   title: Franchise API
@@ -8,10 +9,6 @@ app:
   termsOfService: https://www.example.com/terms
   license: Apache License Version 2.0
   licenseUrl: https://www.apache.org/licenses/LICENSE-2.0
-
-springdoc:
-  swagger-ui:
-    enabled: true
 
 spring:
   sql:

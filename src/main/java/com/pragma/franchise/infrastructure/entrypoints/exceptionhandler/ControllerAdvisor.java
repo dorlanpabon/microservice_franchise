@@ -1,49 +1,38 @@
 package com.pragma.franchise.infrastructure.entrypoints.exceptionhandler;
 
 import com.pragma.franchise.domain.exception.DomainException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.support.WebExchangeBindException;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import reactor.core.publisher.Mono;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-@ControllerAdvice
+@Slf4j
+@RestControllerAdvice
 public class ControllerAdvisor {
 
-    private static final String MESSAGE = "message";
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Mono<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.error("Error: {}", ex.getMessage());
+        return Mono.just(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage()));
+    }
+
+
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Mono<ErrorResponse> handleRuntimeException(RuntimeException ex) {
+        log.error("Error inesperado: {}", ex.getMessage());
+        return Mono.just(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage()));
+    }
 
     @ExceptionHandler(DomainException.class)
-    public ResponseEntity<Map<String, String>> handleDomainException(
-            DomainException ignoredDomainException) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(Collections.singletonMap(MESSAGE, ignoredDomainException.getMessage()));
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Mono<ErrorResponse> handleDomainException(DomainException ex) {
+        log.error("Error de dominio: {}", ex.getMessage());
+        return Mono.just(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage()));
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleException(
-            Exception ignoredException) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Collections.singletonMap(MESSAGE, ignoredException.getMessage()));
-    }
-
-    @ExceptionHandler(WebExchangeBindException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationExceptions(WebExchangeBindException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", System.currentTimeMillis());
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("error", "Validation Error");
-
-        Map<String, String> errors = new HashMap<>();
-        ex.getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage())
-        );
-
-        response.put("errors", errors);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
+    public record ErrorResponse(int status, String message) {}
 }
