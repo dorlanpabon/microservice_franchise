@@ -8,12 +8,18 @@ import com.pragma.franchise.infrastructure.entrypoints.handler.interfaces.IProdu
 import com.pragma.franchise.infrastructure.entrypoints.mapper.IProductRequestMapper;
 import com.pragma.franchise.infrastructure.entrypoints.mapper.IProductResponseMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
-@Service
+import java.util.Objects;
+
+@Component
 @RequiredArgsConstructor
+@Slf4j
 public class ProductHandler implements IProductHandler {
 
     private final IProductServicePort productServicePort;
@@ -21,32 +27,46 @@ public class ProductHandler implements IProductHandler {
     private final IProductResponseMapper productResponseMapper;
 
     @Override
-    public Mono<Void> addProduct(ProductRequestDto productRequestDto) {
-        return Mono.just(productRequestDto)
+    public Mono<ServerResponse> addProduct(ServerRequest request) {
+        return request.bodyToMono(ProductRequestDto.class)
                 .map(productRequestMapper::toDomain)
                 .flatMap(productServicePort::saveProduct)
-                .then();
+                .then(ServerResponse.status(HttpStatus.CREATED).build());
     }
 
     @Override
-    public Mono<Void> deleteProduct(Long productId, Long branchId) {
-        return productServicePort.deleteProduct(productId, branchId);
+    public Mono<ServerResponse> deleteProduct(ServerRequest request) {
+        Long productId = Long.parseLong(request.pathVariable("productId"));
+        Long branchId = Long.parseLong(request.pathVariable("branchId"));
+
+        return productServicePort.deleteProduct(productId, branchId)
+                .then(ServerResponse.noContent().build());
     }
 
     @Override
-    public Mono<Void> updateStock(Long productId, Long branchId, ProductStockUpdateDto stockUpdateDto) {
-        return productServicePort.updateStock(productId, branchId, stockUpdateDto.getStockChange());
+    public Mono<ServerResponse> updateStock(ServerRequest request) {
+        Long productId = Long.parseLong(request.pathVariable("productId"));
+        Long branchId = Long.parseLong(request.pathVariable("branchId"));
+
+        return request.bodyToMono(ProductStockUpdateDto.class)
+                .flatMap(dto -> productServicePort.updateStock(productId, branchId, dto.getStockChange()))
+                .then(ServerResponse.noContent().build());
     }
 
     @Override
-    public Flux<ProductStockResponseDto> getMaxStockProductByBranchForFranchise(Long franchiseId) {
-        return productServicePort.getMaxStockProductByBranchForFranchise(franchiseId)
-                .map(productResponseMapper::toResponse);
+    public Mono<ServerResponse> getMaxStockProductByBranchForFranchise(ServerRequest request) {
+        Long franchiseId = Long.parseLong(request.pathVariable("franchiseId"));
+
+        return ServerResponse.ok().body(productServicePort.getMaxStockProductByBranchForFranchise(franchiseId)
+                .map(productResponseMapper::toResponse), ProductStockResponseDto.class);
     }
 
     @Override
-    public Mono<Void> updateProductName(Long productId, String newName) {
-        return productServicePort.updateProductName(productId, newName);
-    }
+    public Mono<ServerResponse> updateProductName(ServerRequest request) {
+        Long productId = Long.parseLong(request.pathVariable("id"));
+        String newName = Objects.requireNonNull(request.queryParam("newName").orElse(null));
 
+        return productServicePort.updateProductName(productId, newName)
+                .then(ServerResponse.ok().build());
+    }
 }

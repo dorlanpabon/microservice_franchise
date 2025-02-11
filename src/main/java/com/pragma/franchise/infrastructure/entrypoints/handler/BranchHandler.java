@@ -5,29 +5,37 @@ import com.pragma.franchise.infrastructure.entrypoints.dto.request.BranchRequest
 import com.pragma.franchise.infrastructure.entrypoints.handler.interfaces.IBranchHandler;
 import com.pragma.franchise.infrastructure.entrypoints.mapper.IBranchRequestMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
-@Service
-@Transactional
+import java.util.Objects;
+
+@Component
 @RequiredArgsConstructor
+@Slf4j
 public class BranchHandler implements IBranchHandler {
 
     private final IBranchServicePort branchServicePort;
     private final IBranchRequestMapper branchRequestMapper;
 
     @Override
-    public Mono<Void> createBranch(BranchRequestDto branchRequestDto) {
-        return Mono.just(branchRequestDto)
+    public Mono<ServerResponse> createBranch(ServerRequest request) {
+        return request.bodyToMono(BranchRequestDto.class)
                 .map(branchRequestMapper::toDomain)
                 .flatMap(branchServicePort::saveBranch)
-                .then();
+                .then(ServerResponse.status(HttpStatus.CREATED).build());
     }
 
     @Override
-    public Mono<Void> updateBranchName(Long branchId, String newName) {
-        return branchServicePort.updateBranchName(branchId, newName);
-    }
+    public Mono<ServerResponse> updateBranchName(ServerRequest request) {
+        Long branchId = Long.parseLong(Objects.requireNonNull(request.queryParams().getFirst("branchId")));
+        String newName = Objects.requireNonNull(request.queryParams().getFirst("newName"));
 
+        return branchServicePort.updateBranchName(branchId, newName)
+                .then(ServerResponse.status(HttpStatus.OK).build());
+    }
 }

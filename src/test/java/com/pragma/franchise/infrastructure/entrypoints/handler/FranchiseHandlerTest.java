@@ -4,59 +4,82 @@ import com.pragma.franchise.domain.model.Franchise;
 import com.pragma.franchise.domain.spi.IFranchiseServicePort;
 import com.pragma.franchise.infrastructure.entrypoints.dto.request.FranchiseRequestDto;
 import com.pragma.franchise.infrastructure.entrypoints.mapper.IFranchiseRequestMapper;
-import com.pragma.franchise.infrastructure.entrypoints.mapper.IFranchiseResponseMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.reactive.function.server.MockServerRequest;
+import org.springframework.web.reactive.function.server.ServerRequest;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import static org.mockito.Mockito.*;
 
 class FranchiseHandlerTest {
+
     @Mock
-    IFranchiseServicePort franchiseServicePort;
+    private IFranchiseServicePort franchiseServicePort;
+
     @Mock
-    IFranchiseRequestMapper franchiseRequestMapper;
-    @Mock
-    IFranchiseResponseMapper franchiseResponseMapper;
+    private IFranchiseRequestMapper franchiseRequestMapper;
+
     @InjectMocks
-    FranchiseHandler franchiseHandler;
-    @Spy
-    FranchiseRequestDto franchiseRequestDto;
-    @Spy
-    Franchise franchise;
+    private FranchiseHandler franchiseHandler;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        franchiseRequestDto.setName("name");
-        franchise.setName("name");
     }
 
     @Test
-    void testCreateFranchise() {
-        when(franchiseRequestMapper.toDomain(any(FranchiseRequestDto.class))).thenReturn(franchise);
-        when(franchiseServicePort.save(any(Franchise.class))).thenReturn(Mono.empty());
-        Mono<Void> result = franchiseHandler.createFranchise(franchiseRequestDto);
+    void testCreateFranchise_ShouldReturnCreated() {
+        FranchiseRequestDto franchiseRequestDto = new FranchiseRequestDto();
+        franchiseRequestDto.setName("New Franchise");
+        Franchise franchise = new Franchise();
+        franchise.setName("New Franchise");
 
-        StepVerifier.create(result)
+        ServerRequest request = MockServerRequest.builder()
+                .method(HttpMethod.POST)
+                .uri(URI.create("/franchise"))
+                .body(Mono.just(franchiseRequestDto));
+
+        when(franchiseRequestMapper.toDomain(franchiseRequestDto)).thenReturn(franchise);
+        when(franchiseServicePort.save(franchise)).thenReturn(Mono.empty());
+
+        StepVerifier.create(franchiseHandler.createFranchise(request))
+                .expectNextMatches(response -> response.statusCode().equals(HttpStatus.CREATED))
                 .verifyComplete();
 
-        verify(franchiseRequestMapper, times(1)).toDomain(any(FranchiseRequestDto.class));
+        verify(franchiseRequestMapper, times(1)).toDomain(franchiseRequestDto);
+        verify(franchiseServicePort, times(1)).save(franchise);
     }
 
     @Test
-    void testUpdateFranchiseName() {
-        when(franchiseServicePort.updateFranchiseName(anyLong(), anyString())).thenReturn(Mono.empty());
-        Mono<Void> result = franchiseHandler.updateFranchiseName(1L, "newName");
+    void testUpdateFranchiseName_ShouldReturnOk() {
+        Long franchiseId = 1L;
+        String newName = "Updated Franchise";
 
-        StepVerifier.create(result)
+        ServerRequest request = MockServerRequest.builder()
+                .method(HttpMethod.PUT)
+                .uri(URI.create("/franchise"))
+                .queryParam("franchiseId", franchiseId.toString())
+                .queryParam("newName", newName)
+                .build();
+
+        when(franchiseServicePort.updateFranchiseName(franchiseId, newName)).thenReturn(Mono.empty());
+
+        StepVerifier.create(franchiseHandler.updateFranchiseName(request))
+                .expectNextMatches(response -> response.statusCode().equals(HttpStatus.OK))
                 .verifyComplete();
 
-        verify(franchiseServicePort, times(1)).updateFranchiseName(anyLong(), anyString());
+        verify(franchiseServicePort, times(1)).updateFranchiseName(franchiseId, newName);
     }
+
 }
