@@ -1,7 +1,8 @@
 package com.pragma.franchise.domain.usecase;
 
 import com.pragma.franchise.domain.api.IBranchPersistencePort;
-import com.pragma.franchise.domain.exception.DomainException;
+import com.pragma.franchise.domain.exception.InvalidParameterException;
+import com.pragma.franchise.domain.exception.ResourceNotFoundException;
 import com.pragma.franchise.domain.model.Branch;
 import com.pragma.franchise.domain.spi.IBranchServicePort;
 import com.pragma.franchise.domain.util.DomainConstants;
@@ -33,7 +34,7 @@ public class BranchUseCase implements IBranchServicePort {
     @Override
     public Mono<Void> updateBranchName(Long branchId, String newName) {
         return branchPersistencePort.findById(branchId)
-                .switchIfEmpty(Mono.error(new DomainException(DomainConstants.BRANCH_NOT_FOUND)))
+                .switchIfEmpty(Mono.error(ResourceNotFoundException.of(DomainConstants.BRANCH_NOT_FOUND)))
                 .flatMap(branch -> branchValidator.validateBranchName(newName)
                         .then(branchValidator.validateUniqueBranchNameAndFranchiseId(newName, branch.getFranchiseId()))
                         .then(Mono.fromRunnable(() -> branch.setName(newName)))

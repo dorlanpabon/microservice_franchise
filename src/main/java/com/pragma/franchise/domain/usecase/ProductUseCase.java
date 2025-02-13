@@ -1,7 +1,8 @@
 package com.pragma.franchise.domain.usecase;
 
 import com.pragma.franchise.domain.api.IProductPersistencePort;
-import com.pragma.franchise.domain.exception.DomainException;
+import com.pragma.franchise.domain.exception.InvalidParameterException;
+import com.pragma.franchise.domain.exception.ResourceNotFoundException;
 import com.pragma.franchise.domain.model.Product;
 import com.pragma.franchise.domain.spi.IProductServicePort;
 import com.pragma.franchise.domain.util.DomainConstants;
@@ -52,7 +53,7 @@ public class ProductUseCase implements IProductServicePort {
     @Override
     public Mono<Void> updateProductName(Long productId, String newName) {
         return productPersistencePort.findById(productId)
-                .switchIfEmpty(Mono.error(new DomainException(DomainConstants.PRODUCT_NOT_FOUND)))
+                .switchIfEmpty(Mono.error(ResourceNotFoundException.of(DomainConstants.PRODUCT_NOT_FOUND)))
                 .flatMap(product -> productValidator.validateProductName(newName)
                         .then(productValidator.validateUniqueProductName(newName, product.getBranchId()))
                         .then(Mono.fromRunnable(() -> product.setName(newName)))
