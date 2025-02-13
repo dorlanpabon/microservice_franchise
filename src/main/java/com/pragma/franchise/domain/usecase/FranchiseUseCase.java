@@ -1,7 +1,8 @@
 package com.pragma.franchise.domain.usecase;
 
 import com.pragma.franchise.domain.api.IFranchisePersistencePort;
-import com.pragma.franchise.domain.exception.DomainException;
+import com.pragma.franchise.domain.exception.InvalidParameterException;
+import com.pragma.franchise.domain.exception.ResourceNotFoundException;
 import com.pragma.franchise.domain.model.Franchise;
 import com.pragma.franchise.domain.spi.IFranchiseServicePort;
 import com.pragma.franchise.domain.util.DomainConstants;
@@ -30,7 +31,7 @@ public class FranchiseUseCase implements IFranchiseServicePort {
     @Override
     public Mono<Void> updateFranchiseName(Long franchiseId, String newName) {
         return franchisePersistencePort.findById(franchiseId)
-                .switchIfEmpty(Mono.error(new DomainException(DomainConstants.FRANCHISE_NOT_FOUND)))
+                .switchIfEmpty(Mono.error(ResourceNotFoundException.of(DomainConstants.FRANCHISE_NOT_FOUND)))
                 .flatMap(franchise -> franchiseValidator.validateFranchiseName(newName)
                         .then(franchiseValidator.validateUniqueFranchiseName(newName))
                         .then(Mono.fromRunnable(() -> franchise.setName(newName)))
